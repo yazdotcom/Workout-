@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0c0c0e">
+<title>Phase 2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+:root{
+  --bg:#0c0c0e;
+  --s1:#141418;
+  --s2:#1d1d22;
+  --border:#252530;
+  --text:#f2efe9;
+  --muted:#5c5c6e;
+  --faint:#1e1e26;
+  --green:#22c55e;
+  --green-bg:#06130a;
+  --green-border:#0e2c18;
+  --green-muted:#16a34a;
+}
+
+html,body{
+  height:100%;
+  overscroll-behavior:none;
+  background:var(--bg);
+  color:var(--text);
+  font-family:"DM Mono",monospace;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ── HEADER ── */
+.hdr{
+  position:sticky;top:0;z-index:100;
+  background:var(--bg);
+  border-bottom:1px solid var(--border);
+  padding:16px 16px 0;
+}
+.hdr-top{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:14px;}
+.hdr-left{}
+.hdr-eyebrow{font-size:9px;letter-spacing:4px;color:var(--muted);margin-bottom:3px;}
+.hdr-title{font-family:"Bebas Neue",sans-serif;font-size:28px;letter-spacing:2px;line-height:1;}
+.hdr-date{font-size:9px;letter-spacing:2px;color:var(--muted);margin-top:2px;}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:0;}
+.tab{
+  flex:1;padding:9px 0;background:transparent;
+  border:1px solid var(--border);color:var(--muted);
+  font-family:"DM Mono",monospace;font-size:9px;letter-spacing:3px;
+  cursor:pointer;transition:all .15s;
+}
+.tab:first-child{border-radius:2px 0 0 0;}
+.tab:last-child{border-radius:0 2px 0 0;border-left:none;}
+.tab.on{background:var(--text);color:var(--bg);border-color:var(--text);}
+
+/* ── PAGES ── */
+.page{display:none;}.page.on{display:block;}
+.content{padding:16px 14px 80px;max-width:540px;margin:0 auto;}
+
+/* ── WORKOUT SELECTOR GRID ── */
+.wgrid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-bottom:18px;
+}
+.wgcard{
+  background:var(--s1);
+  border:1.5px solid var(--border);
+  border-radius:8px;
+  padding:14px 12px 12px;
+  cursor:pointer;
+  text-align:left;
+  transition:border-color .15s, background .15s;
+  width:100%;
+}
+.wgcard:active{opacity:0.85;}
+.wgcard-icon{font-size:22px;display:block;margin-bottom:8px;line-height:1;}
+.wgcard-name{
+  font-family:"DM Mono",monospace;
+  font-size:11px;font-weight:500;
+  line-height:1.3;margin-bottom:5px;
+  color:var(--text);
+}
+.wgcard-tag{
+  font-size:7px;letter-spacing:2px;
+  color:var(--muted);margin-bottom:6px;
+  display:block;
+}
+.wgcard-sets{
+  font-family:"Bebas Neue",sans-serif;
+  font-size:20px;line-height:1;
+}
+
+/* ── SESSION NOTE ── */
+.snote{
+  border-left:3px solid;
+  padding:11px 14px;
+  margin-bottom:16px;
+  font-size:10px;font-style:italic;
+  color:var(--muted);line-height:1.7;
+  background:var(--s1);
+  border-radius:0 6px 6px 0;
+}
+
+/* ── PROGRESS ── */
+.prog-wrap{margin-bottom:18px;}
+.prog-top{
+  display:flex;justify-content:space-between;
+  align-items:baseline;margin-bottom:8px;
+}
+.prog-done{
+  font-family:"Bebas Neue",sans-serif;
+  font-size:28px;line-height:1;
+}
+.prog-of{
+  font-size:9px;letter-spacing:2px;
+  color:var(--muted);
+}
+.prog-pct{
+  font-size:9px;letter-spacing:2px;
+  color:var(--muted);
+}
+.prog-bar{
+  height:5px;background:var(--faint);
+  border-radius:3px;overflow:hidden;
+}
+.prog-fill{
+  height:100%;border-radius:3px;
+  transition:width .5s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* ── SECTION LABEL ── */
+.sec-lbl{
+  font-size:8px;letter-spacing:4px;color:var(--muted);
+  margin:18px 0 8px;padding-bottom:6px;
+  border-bottom:1px solid var(--border);
+}
+
+/* ── EXERCISE CARD ── */
+.excard{
+  background:var(--s1);
+  border:1px solid var(--border);
+  border-left:4px solid var(--border);
+  border-radius:0 8px 8px 0;
+  margin-bottom:8px;
+  overflow:hidden;
+  transition:border-color .2s, background .2s;
+}
+.excard.done{
+  background:var(--green-bg);
+  border-color:var(--green-border);
+  border-left-color:var(--green);
+}
+
+.ex-top{display:flex;align-items:flex-start;gap:10px;padding:13px 13px 8px;}
+
+.ex-icon{
+  width:36px;height:36px;border-radius:50%;
+  border:1.5px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:9px;font-weight:500;color:var(--muted);
+  flex-shrink:0;cursor:pointer;user-select:none;
+  transition:all .2s;
+  letter-spacing:0;line-height:1;text-align:center;
+}
+.excard.done .ex-icon{border-color:var(--green);color:var(--green);}
+
+.ex-info{flex:1;min-width:0;padding-top:2px;}
+.ex-abs-tag{
+  font-size:7px;letter-spacing:2px;
+  color:var(--muted);display:block;margin-bottom:3px;
+}
+.ex-name{
+  font-size:13px;font-weight:500;line-height:1.3;
+  margin-bottom:4px;cursor:pointer;
+  display:flex;align-items:center;gap:5px;
+  transition:color .2s;
+}
+.excard.done .ex-name{color:var(--green);}
+.ex-yt{font-size:9px;color:var(--muted);flex-shrink:0;}
+.ex-sub{font-size:9px;color:var(--muted);letter-spacing:1px;}
+
+.ex-badge{text-align:right;flex-shrink:0;padding-top:1px;}
+.ex-sets-num{
+  font-family:"Bebas Neue",sans-serif;
+  font-size:30px;line-height:1;transition:color .2s;
+}
+.excard.done .ex-sets-num{color:var(--green);}
+.ex-sets-lbl{
+  font-size:7px;letter-spacing:2px;
+  color:var(--muted);display:block;text-align:right;
+}
+
+/* ── SET DOTS ── */
+.set-dots{
+  display:flex;gap:5px;
+  padding:0 13px 11px;flex-wrap:wrap;
+}
+.sdot{
+  flex:1;min-width:38px;height:34px;
+  border-radius:20px;
+  border:1px solid var(--border);background:transparent;
+  cursor:pointer;font-size:8px;letter-spacing:1px;
+  color:var(--muted);font-family:"DM Mono",monospace;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .15s;user-select:none;font-weight:500;
+}
+.sdot:active{transform:scale(0.94);}
+
+/* ex-cue */
+.ex-cue{
+  padding:7px 13px 11px;
+  font-size:9px;color:var(--muted);
+  line-height:1.6;font-style:italic;
+  border-top:1px solid var(--border);
+}
+.excard.done .ex-cue{border-color:var(--green-border);color:var(--muted);}
+
+/* ── CALENDAR ── */
+.cal-header{
+  display:flex;justify-content:space-between;
+  align-items:baseline;margin-bottom:14px;
+}
+.cal-month{
+  font-family:"Bebas Neue",sans-serif;
+  font-size:24px;letter-spacing:1px;
+}
+.cal-year{
+  font-size:9px;letter-spacing:3px;color:var(--muted);
+}
+.cal-grid{
+  display:grid;grid-template-columns:repeat(7,1fr);
+  gap:3px;margin-bottom:16px;
+}
+.cal-head{
+  text-align:center;font-size:8px;
+  letter-spacing:1px;color:var(--muted);padding:4px 0 6px;
+}
+.cal-cell{
+  aspect-ratio:1;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  border-radius:6px;cursor:pointer;
+  gap:3px;transition:background .1s;
+  position:relative;
+}
+.cal-cell:active{background:var(--s2);}
+.cal-cell.today{background:var(--s1);}
+.cal-cell.future{opacity:0.2;cursor:default;pointer-events:none;}
+.cal-cell.cal-sel{background:var(--s2);outline:1px solid var(--muted);outline-offset:-1px;}
+.cal-num{font-size:9px;color:var(--muted);line-height:1;}
+.cal-cell.today .cal-num{
+  color:var(--text);font-weight:500;
+  width:18px;height:18px;
+  background:var(--s2);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+}
+.cal-dot{width:5px;height:5px;border-radius:50%;}
+
+/* ── DAY DETAIL ── */
+.day-detail{
+  background:var(--s1);border:1px solid var(--border);
+  border-radius:8px;padding:16px;margin-bottom:16px;
+}
+.dd-date{font-size:8px;letter-spacing:3px;color:var(--muted);margin-bottom:4px;}
+.dd-name{
+  font-family:"Bebas Neue",sans-serif;
+  font-size:24px;letter-spacing:0.5px;margin-bottom:6px;line-height:1.1;
+}
+.dd-row{display:flex;gap:16px;flex-wrap:wrap;}
+.dd-stat{font-size:9px;color:var(--muted);letter-spacing:1px;}
+.dd-empty{font-size:11px;color:var(--muted);font-style:italic;}
+
+/* ── HISTORY LIST ── */
+.hist-item{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 0;border-bottom:1px solid var(--faint);
+  cursor:pointer;
+}
+.hist-item:last-child{border-bottom:none;}
+.hist-swatch{
+  width:28px;height:28px;border-radius:6px;
+  flex-shrink:0;display:flex;align-items:center;
+  justify-content:center;font-size:13px;
+}
+.hist-info{flex:1;min-width:0;}
+.hist-date{font-size:8px;letter-spacing:2px;color:var(--muted);margin-bottom:2px;}
+.hist-name{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.hist-count{
+  font-family:"Bebas Neue",sans-serif;
+  font-size:18px;flex-shrink:0;text-align:right;
+}
+
+/* ── FOOTER ── */
+.foot{
+  border-top:1px solid var(--border);
+  padding:12px 14px;text-align:center;
+  font-size:8px;color:var(--faint);letter-spacing:2px;
+}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:28px;left:50%;
+  transform:translateX(-50%) translateY(70px);
+  background:var(--green);color:#000;
+  padding:10px 22px;border-radius:20px;
+  font-size:10px;letter-spacing:2px;font-weight:500;
+  transition:transform .3s cubic-bezier(0.34,1.56,0.64,1);
+  z-index:999;pointer-events:none;white-space:nowrap;
+}
+.toast.show{transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-top">
+    <div class="hdr-left">
+      <div class="hdr-eyebrow">PHASE 2 &middot; NEW ROTATION</div>
+      <div class="hdr-title">Training Plan</div>
+      <div class="hdr-date" id="hdrDate"></div>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tab on" onclick="switchTab('workout',this)">WORKOUT</button>
+    <button class="tab" onclick="switchTab('history',this)">HISTORY</button>
+  </div>
+</div>
+
+<div class="page on" id="page-workout">
+  <div class="content" id="workoutContent"></div>
+</div>
+
+<div class="page" id="page-history">
+  <div class="content" id="historyContent"></div>
+</div>
+
+<div class="foot">94.7KG &middot; 47.3 SMM &middot; TARGET 10% BF</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DATA ─────────────────────────────────────────────────────────────────────
+
+var ABS2 = [
+  { name:"Bicycle Crunch",    sets:3, reps:"20 total",     load:"Bodyweight", cue:"Elbow to opposite knee, slow and deliberate" },
+  { name:"Hollow Body Hold",  sets:3, reps:"30 sec",       load:"Bodyweight", cue:"Lower back flat, arms overhead, legs low" },
+  { name:"DB Woodchop",       sets:3, reps:"12 each side", load:"8-10 kg",    cue:"Rotate from the hips, arms just follow" },
+  { name:"Mountain Climbers", sets:3, reps:"30 sec",       load:"Bodyweight", cue:"Hips level, drive knees fast to chest" },
+  { name:"Side Plank",        sets:3, reps:"30 sec each",  load:"Bodyweight", cue:"Hips up, straight line from head to feet" },
+  { name:"Ab Wheel Rollout",  sets:3, reps:"8-10",         load:"Bodyweight", cue:"Full extension, pull back with abs not arms" }
+];
+
+var WORKOUTS = [
+  {
+    id:"chest2", label:"Chest & Biceps", tag:"PUSH / PULL",
+    accent:"#4a9eca", accentBg:"rgba(74,158,202,0.07)",
+    icon:"&#x1F4AA;", type:"lift",
+    note:"Floor press removes shoulder strain and targets mid-chest differently. Spider curls load peak contraction harder. Rest 60-75 sec between sets.",
+    exercises:[
+      { name:"DB Floor Press",         sets:4, reps:"8-10",  load:"18-20 kg", cue:"Upper arms 45 deg, triceps touch floor at bottom" },
+      { name:"DB Incline Flyes",       sets:3, reps:"12-15", load:"10-12 kg", cue:"Upper chest focus, deep stretch at bottom" },
+      { name:"DB Pullover",            sets:3, reps:"12",    load:"16-18 kg", cue:"Chest and serratus stretch, slight elbow bend" },
+      { name:"DB Incline Hammer Curl", sets:4, reps:"10-12", load:"12-14 kg", cue:"Lie back on incline, long head gets full stretch" },
+      { name:"DB Spider Curl",         sets:3, reps:"12-15", load:"10-12 kg", cue:"Chest on incline bench face down, arms hang free" }
+    ],
+    abs:[ ABS2[0], ABS2[1], ABS2[2] ]
+  },
+  {
+    id:"back2", label:"Back & Rear Delts", tag:"PULL",
+    accent:"#4caf7d", accentBg:"rgba(76,175,125,0.07)",
+    icon:"&#x1F3CB;", type:"lift",
+    note:"Chin-ups switch grip for lower lat and bicep activation. Chest-supported rows remove lower back fatigue entirely. Rest 75 sec on compounds.",
+    exercises:[
+      { name:"Chin-Ups Underhand",     sets:4, reps:"6-10",  load:"Bodyweight+",    cue:"Underhand grip, squeeze lower lats at top" },
+      { name:"Close Grip Pulldown",    sets:4, reps:"10-12", load:"Moderate-heavy", cue:"Pull to upper chest, elbows drive straight down" },
+      { name:"Single Arm Cable Row",   sets:3, reps:"12-15", load:"Moderate",       cue:"Slight torso rotation, full stretch at extension" },
+      { name:"DB Chest Supported Row", sets:3, reps:"10-12", load:"20 kg",          cue:"Chest on incline bench, lower back out of it" },
+      { name:"DB Rear Delt Row",       sets:3, reps:"15-20", load:"8-10 kg",        cue:"Elbow flared 90 deg, rear delt isolation only" }
+    ],
+    abs:[ ABS2[3], ABS2[4], ABS2[5] ]
+  },
+  {
+    id:"shoulders2", label:"Shoulders & Triceps", tag:"PUSH",
+    accent:"#a47ecf", accentBg:"rgba(164,126,207,0.07)",
+    icon:"&#x1F531;", type:"lift",
+    note:"Push press adds power development to the session. Skull crushers load the long tricep head harder than overhead extensions. Rest 60-75 sec.",
+    exercises:[
+      { name:"DB Push Press",              sets:4, reps:"8-10",  load:"14-16 kg", cue:"Slight leg drive at bottom, lockout overhead" },
+      { name:"DB Upright Row",             sets:3, reps:"12-15", load:"12-14 kg", cue:"Elbows lead, pull to chin height, pause" },
+      { name:"DB Bent Over Lateral Raise", sets:4, reps:"15-20", load:"8 kg",     cue:"Torso parallel to floor, rear delt only" },
+      { name:"DB Skull Crusher",           sets:4, reps:"10-12", load:"10-12 kg", cue:"Lower slowly to forehead, elbows fixed" },
+      { name:"DB Single Arm Overhead Ext", sets:3, reps:"12-15", load:"12-14 kg", cue:"Support elbow with free hand, full stretch" }
+    ],
+    abs:[ ABS2[0], ABS2[4], ABS2[5] ]
+  },
+  {
+    id:"legs2", label:"Legs", tag:"COMPOUND",
+    accent:"#cf5f5f", accentBg:"rgba(207,95,95,0.07)",
+    icon:"&#x1F9B5;", type:"lift",
+    note:"Sumo targets inner quad and adductors. Walking lunges add full-leg activation and balance. Rest 90 sec on compounds, 60 sec isolation.",
+    exercises:[
+      { name:"DB Sumo Squat",          sets:4, reps:"12-15",    load:"20 kg",    cue:"Wide stance toes out 45 deg, sit between heels" },
+      { name:"DB Walking Lunge",       sets:3, reps:"10 each",  load:"14-16 kg", cue:"Long stride, back knee grazes floor" },
+      { name:"DB Stiff Leg Deadlift",  sets:4, reps:"10-12",    load:"20 kg",    cue:"Minimal knee bend, feel hamstring load" },
+      { name:"DB Lateral Lunge",       sets:3, reps:"10 each",  load:"12-14 kg", cue:"Step wide, sit into one hip, other leg straight" },
+      { name:"DB Glute Bridge",        sets:3, reps:"15",       load:"20 kg",    cue:"Flat on floor, drive hips up, 1 sec squeeze" },
+      { name:"Single Leg Calf Raise",  sets:4, reps:"15-20 ea", load:"10-12 kg", cue:"Full ROM, pause at top, slow lower" }
+    ],
+    abs:[ ABS2[1], ABS2[2], ABS2[3] ]
+  }
+];
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+var appState = {
+  currentWorkoutId: "chest2",
+  history: {}
+};
+var selectedCalDay = null;
+var ytNames = [];
+var toastTimer = null;
+
+// ── UTILS ─────────────────────────────────────────────────────────────────────
+function pad(n){ return n < 10 ? "0"+n : ""+n; }
+function dateToStr(d){ return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); }
+function strToDate(s){ var p=s.split("-"); return new Date(+p[0],+p[1]-1,+p[2]); }
+function todayStr(){ return dateToStr(new Date()); }
+
+function getWorkoutById(id){
+  for(var i=0;i<WORKOUTS.length;i++) if(WORKOUTS[i].id===id) return WORKOUTS[i];
+  return null;
+}
+
+function allExercises(w){
+  if(!w||w.type!=="lift") return [];
+  return (w.exercises||[]).concat(w.abs||[]);
+}
+
+function getExDone(session, exIdx, total){
+  if(!session) return 0;
+  var c=0;
+  for(var s=0;s<total;s++) if(session.sets["e"+exIdx+"_s"+s]) c++;
+  return c;
+}
+
+function getSessionTotals(workout, session){
+  var allEx=allExercises(workout), total=0, done=0;
+  for(var i=0;i<allEx.length;i++){
+    if(allEx[i].sets){
+      total+=allEx[i].sets;
+      done+=getExDone(session,i,allEx[i].sets);
+    }
+  }
+  return {total:total,done:done};
+}
+
+function getWorkoutSetCount(workout){
+  var allEx=allExercises(workout), n=0;
+  for(var i=0;i<allEx.length;i++) n+=(allEx[i].sets||0);
+  return n;
+}
+
+function getMondayOf(d){
+  var c=new Date(d); c.setHours(0,0,0,0);
+  var day=c.getDay(), diff=day===0?-6:1-day;
+  c.setDate(c.getDate()+diff);
+  return c;
+}
+
+// ── PERSISTENCE ───────────────────────────────────────────────────────────────
+function loadState(){
+  try{
+    var raw=localStorage.getItem("p2_v2");
+    if(raw){ var s=JSON.parse(raw); appState.currentWorkoutId=s.currentWorkoutId||"chest2"; appState.history=s.history||{}; }
+  }catch(e){}
+}
+function saveState(){
+  try{ localStorage.setItem("p2_v2",JSON.stringify(appState)); }catch(e){}
+}
+function ensureTodaySession(wid){
+  var ts=todayStr();
+  if(!appState.history[ts]||appState.history[ts].workoutId!==wid)
+    appState.history[ts]={workoutId:wid,sets:{}};
+  return appState.history[ts];
+}
+
+// ── YOUTUBE ───────────────────────────────────────────────────────────────────
+function openYT(idx){
+  var name=ytNames[idx]; if(!name) return;
+  window.open("https://www.youtube.com/results?search_query="+encodeURIComponent(name+" exercise tutorial"),"_blank");
+}
+
+// ── RENDER: SELECTOR GRID ─────────────────────────────────────────────────────
+function buildSelectorGrid(activeId){
+  var html="<div class=\"wgrid\">";
+  for(var i=0;i<WORKOUTS.length;i++){
+    var w=WORKOUTS[i];
+    var isActive=w.id===activeId;
+    var n=getWorkoutSetCount(w);
+    html+="<button class=\"wgcard\" onclick=\"changeWorkout('"+w.id+"')\"";
+    if(isActive) html+=" style=\"border-color:"+w.accent+";background:"+w.accentBg+"\"";
+    html+=">";
+    html+="<span class=\"wgcard-icon\">"+w.icon+"</span>";
+    html+="<div class=\"wgcard-name\">"+w.label+"</div>";
+    html+="<span class=\"wgcard-tag\">"+w.tag+"</span>";
+    html+="<div class=\"wgcard-sets\" style=\"color:"+(isActive?w.accent:"var(--muted)")+"\">"+n+" <span style=\"font-size:10px;letter-spacing:2px;font-family:DM Mono,monospace;\">SETS</span></div>";
+    html+="</button>";
+  }
+  html+="</div>";
+  return html;
+}
+
+// ── RENDER: EXERCISE CARD ─────────────────────────────────────────────────────
+function buildExCard(exIdx, ex, accent, session, isAbs){
+  var total=ex.sets;
+  var done=getExDone(session,exIdx,total);
+  var allDone=done===total;
+  var ytIdx=ytNames.length;
+  ytNames.push(ex.name);
+
+  var lbColor=allDone?"var(--green)":accent;
+  var html="<div class=\"excard"+(allDone?" done":"")+"\" style=\"border-left-color:"+lbColor+"\">";
+
+  // top
+  html+="<div class=\"ex-top\">";
+  html+="<div class=\"ex-icon\" onclick=\"tapNext("+exIdx+","+total+")\"";
+  if(allDone) html+=" style=\"border-color:var(--green);color:var(--green)\"";
+  else html+=" style=\"border-color:"+accent+";color:"+accent+"\"";
+  html+=">"+(allDone?"&#x2713;":done+"/"+total)+"</div>";
+
+  html+="<div class=\"ex-info\">";
+  if(isAbs) html+="<span class=\"ex-abs-tag\">ABS</span>";
+  html+="<div class=\"ex-name\" onclick=\"openYT("+ytIdx+")\">";
+  html+=ex.name+" <span class=\"ex-yt\">&#x25B6;</span></div>";
+  html+="<div class=\"ex-sub\">"+ex.reps+" &middot; "+ex.load+"</div>";
+  html+="</div>";
+
+  html+="<div class=\"ex-badge\">";
+  html+="<div class=\"ex-sets-num\" style=\"color:"+(allDone?"var(--green)":accent)+"\">"+total+"</div>";
+  html+="<div class=\"ex-sets-lbl\">SETS</div>";
+  html+="</div></div>";
+
+  // set dots
+  html+="<div class=\"set-dots\">";
+  for(var s=0;s<total;s++){
+    var hit=session&&session.sets["e"+exIdx+"_s"+s];
+    html+="<div class=\"sdot\" onclick=\"tapSet("+exIdx+","+s+")\"";
+    if(hit){
+      if(allDone) html+=" style=\"background:var(--green);border-color:var(--green);color:#000\"";
+      else html+=" style=\"background:"+accent+";border-color:"+accent+";color:#000\"";
+    }
+    html+=">S"+(s+1)+"</div>";
+  }
+  html+="</div>";
+
+  html+="<div class=\"ex-cue\">&#x21B3; "+ex.cue+"</div>";
+  html+="</div>";
+  return html;
+}
+
+// ── RENDER: WORKOUT PAGE ──────────────────────────────────────────────────────
+function buildWorkoutPage(){
+  var workout=getWorkoutById(appState.currentWorkoutId)||WORKOUTS[0];
+  var ts=todayStr();
+  var session=(appState.history[ts]&&appState.history[ts].workoutId===workout.id)?appState.history[ts]:null;
+  ytNames=[];
+
+  var html=buildSelectorGrid(workout.id);
+  html+="<div class=\"snote\" style=\"border-left-color:"+workout.accent+"\">"+workout.note+"</div>";
+
+  var mainEx=workout.exercises||[];
+  var absEx=workout.abs||[];
+  var totals=getSessionTotals(workout,session);
+  var pct=totals.total>0?Math.round(totals.done/totals.total*100):0;
+
+  // Progress block
+  html+="<div class=\"prog-wrap\">";
+  html+="<div class=\"prog-top\">";
+  html+="<div><span class=\"prog-done\" style=\"color:"+workout.accent+"\">"+totals.done+"</span>&nbsp;<span class=\"prog-of\">/ "+totals.total+" SETS</span></div>";
+  html+="<div class=\"prog-pct\">"+pct+"%</div>";
+  html+="</div>";
+  html+="<div class=\"prog-bar\"><div class=\"prog-fill\" style=\"width:"+pct+"%;background:"+workout.accent+"\"></div></div>";
+  html+="</div>";
+
+  // Sort: incomplete first, done at bottom — original index preserved for set-key correctness
+  var mainPending=[],mainDone=[];
+  for(var i=0;i<mainEx.length;i++){
+    if(getExDone(session,i,mainEx[i].sets)===mainEx[i].sets) mainDone.push(i);
+    else mainPending.push(i);
+  }
+  html+="<div class=\"sec-lbl\">EXERCISES</div>";
+  var mainOrder=mainPending.concat(mainDone);
+  for(var i=0;i<mainOrder.length;i++) html+=buildExCard(mainOrder[i],mainEx[mainOrder[i]],workout.accent,session,false);
+
+  var absPending=[],absDone=[];
+  for(var i=0;i<absEx.length;i++){
+    if(getExDone(session,mainEx.length+i,absEx[i].sets)===absEx[i].sets) absDone.push(i);
+    else absPending.push(i);
+  }
+  html+="<div class=\"sec-lbl\">ABS</div>";
+  var absOrder=absPending.concat(absDone);
+  for(var i=0;i<absOrder.length;i++) html+=buildExCard(mainEx.length+absOrder[i],absEx[absOrder[i]],workout.accent,session,true);
+
+  document.getElementById("workoutContent").innerHTML=html;
+}
+
+// ── RENDER: HISTORY PAGE ──────────────────────────────────────────────────────
+function buildHistoryPage(){
+  var today=new Date(); today.setHours(0,0,0,0);
+  var todayS=todayStr();
+  var monday=getMondayOf(today);
+  var start=new Date(monday); start.setDate(start.getDate()-35);
+
+  var fullMonths=["January","February","March","April","May","June","July","August","September","October","November","December"];
+  var shortMonths=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  var heads=["M","T","W","T","F","S","S"];
+
+  var html="<div class=\"cal-header\">";
+  html+="<div class=\"cal-month\">"+fullMonths[today.getMonth()]+"</div>";
+  html+="<div class=\"cal-year\">"+today.getFullYear()+"</div>";
+  html+="</div>";
+
+  html+="<div class=\"cal-grid\">";
+  for(var h=0;h<7;h++) html+="<div class=\"cal-head\">"+heads[h]+"</div>";
+
+  var lastMonth=-1;
+  for(var i=0;i<42;i++){
+    var date=new Date(start);
+    date.setDate(start.getDate()+i);
+    date.setHours(0,0,0,0);
+    var ds=dateToStr(date);
+    var isFuture=date>today;
+    var isToday=ds===todayS;
+    var isSel=ds===selectedCalDay;
+    var sess=appState.history[ds];
+    var wk=sess?getWorkoutById(sess.workoutId):null;
+
+    // Month separator row
+    if(date.getMonth()!==lastMonth&&i>0&&i%7===0){
+      html+="<div style=\"grid-column:1/-1;font-size:7px;letter-spacing:3px;color:var(--muted);padding:5px 0 2px;border-top:1px solid var(--border);\">";
+      html+=shortMonths[date.getMonth()]+" "+date.getFullYear()+"</div>";
+    }
+    lastMonth=date.getMonth();
+
+    var cls="cal-cell";
+    if(isToday) cls+=" today";
+    if(isFuture) cls+=" future";
+    if(isSel) cls+=" cal-sel";
+
+    html+="<div class=\""+cls+"\"";
+    if(!isFuture) html+=" onclick=\"tapCalDay('"+ds+"')\"";
+    html+=">";
+    html+="<span class=\"cal-num\">"+date.getDate()+"</span>";
+    if(wk&&!isFuture) html+="<div class=\"cal-dot\" style=\"background:"+wk.accent+"\"></div>";
+    html+="</div>";
+  }
+  html+="</div>"; // close cal-grid
+
+  // Selected day detail
+  if(selectedCalDay){
+    var sd=appState.history[selectedCalDay];
+    var sdDate=strToDate(selectedCalDay);
+    var sdLabel=sdDate.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"});
+    html+="<div class=\"day-detail\">";
+    html+="<div class=\"dd-date\">"+sdLabel.toUpperCase()+"</div>";
+    if(!sd){
+      html+="<div class=\"dd-empty\">No workout logged this day.</div>";
+    } else {
+      var sdW=getWorkoutById(sd.workoutId);
+      if(sdW){
+        html+="<div class=\"dd-name\" style=\"color:"+sdW.accent+"\">"+sdW.label+"</div>";
+        var sdt=getSessionTotals(sdW,sd);
+        html+="<div class=\"dd-row\">";
+        html+="<span class=\"dd-stat\">"+sdt.done+" / "+sdt.total+" sets</span>";
+        if(sdt.total>0) html+="<span class=\"dd-stat\">"+Math.round(sdt.done/sdt.total*100)+"% complete</span>";
+        html+="</div>";
+      }
+    }
+    html+="</div>";
+  }
+
+  // Recent sessions
+  var allDates=Object.keys(appState.history).sort().reverse();
+  if(allDates.length>0){
+    html+="<div class=\"sec-lbl\">RECENT SESSIONS</div>";
+    var shown=0;
+    for(var d=0;d<allDates.length&&shown<10;d++){
+      var dStr=allDates[d];
+      var dSess=appState.history[dStr];
+      var dW=getWorkoutById(dSess.workoutId);
+      if(!dW) continue;
+      var dDate=strToDate(dStr);
+      var dLabel=dDate.toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"});
+      var dt=getSessionTotals(dW,dSess);
+      html+="<div class=\"hist-item\" onclick=\"tapCalDay('"+dStr+"')\">";
+      html+="<div class=\"hist-swatch\" style=\"background:"+dW.accentBg+";border:1px solid "+dW.accent+"\">"+dW.icon+"</div>";
+      html+="<div class=\"hist-info\">";
+      html+="<div class=\"hist-date\">"+dLabel.toUpperCase()+"</div>";
+      html+="<div class=\"hist-name\">"+dW.label+"</div>";
+      html+="</div>";
+      html+="<div class=\"hist-count\" style=\"color:"+dW.accent+"\">"+dt.done+"<span style=\"font-size:9px;color:var(--muted)\"> / "+dt.total+"</span></div>";
+      html+="</div>";
+      shown++;
+    }
+  }
+
+  document.getElementById("historyContent").innerHTML=html;
+}
+
+// ── EVENTS ────────────────────────────────────────────────────────────────────
+function changeWorkout(wid){
+  appState.currentWorkoutId=wid;
+  saveState();
+  buildWorkoutPage();
+}
+
+function tapNext(exIdx, total){
+  var wid=appState.currentWorkoutId;
+  var session=ensureTodaySession(wid);
+  for(var s=0;s<total;s++){
+    if(!session.sets["e"+exIdx+"_s"+s]){
+      session.sets["e"+exIdx+"_s"+s]=true;
+      saveState();
+      break;
+    }
+  }
+  var done=getExDone(session,exIdx,total);
+  if(done===total){
+    var w=getWorkoutById(wid);
+    if(w){ var allEx=allExercises(w); if(allEx[exIdx]) showToast("&#x2713; "+allEx[exIdx].name); }
+  }
+  buildWorkoutPage();
+}
+
+function tapSet(exIdx, sIdx){
+  var wid=appState.currentWorkoutId;
+  var session=ensureTodaySession(wid);
+  var k="e"+exIdx+"_s"+sIdx;
+  if(!session.sets[k]){
+    // Fill down: mark this set and all before it as done
+    for(var s=0;s<=sIdx;s++) session.sets["e"+exIdx+"_s"+s]=true;
+  } else {
+    // Already checked — uncheck just this one
+    session.sets[k]=false;
+  }
+  saveState();
+  var w=getWorkoutById(wid);
+  if(w){
+    var allEx=allExercises(w);
+    var ex=allEx[exIdx];
+    if(ex&&ex.sets&&getExDone(session,exIdx,ex.sets)===ex.sets)
+      showToast("&#x2713; "+ex.name);
+  }
+  buildWorkoutPage();
+}
+
+function tapCalDay(ds){
+  selectedCalDay=(selectedCalDay===ds)?null:ds;
+  buildHistoryPage();
+}
+
+function switchTab(v,el){
+  document.querySelectorAll(".page").forEach(function(p){p.classList.remove("on");});
+  document.querySelectorAll(".tab").forEach(function(t){t.classList.remove("on");});
+  document.getElementById("page-"+v).classList.add("on");
+  el.classList.add("on");
+  if(v==="history") buildHistoryPage();
+  else buildWorkoutPage();
+}
+
+function showToast(msg){
+  var t=document.getElementById("toast");
+  t.innerHTML=msg;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(function(){t.classList.remove("show");},2200);
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+loadState();
+var now=new Date();
+document.getElementById("hdrDate").textContent=
+  now.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"}).toUpperCase();
+buildWorkoutPage();
+</script>
+</body>
+</html>
